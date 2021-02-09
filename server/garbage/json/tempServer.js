@@ -20,16 +20,10 @@ var productSchema = mongoose.Schema({
   categoryID: String,
   Quantity: Number,
   image: String,
-  categories: [{ type: mongoose.Schema.Types.ObjectId, ref: "categories" }],
 });
 var categorySchema = mongoose.Schema({
   categoryID: String,
-  product : {
-    type: mongoose.Schema.Types.ObjectId ,
-    ref : 'products'
-  },
   category: String,
-  
 });
 
 var products = mongoose.model("products", productSchema);
@@ -37,21 +31,22 @@ var categories = mongoose.model("categories", categorySchema);
 
 app.get("/", async function (req, res) {
   let getDatas = await products.find({});
-  console.log(getDatas);
+  console.log(mongoose.Schema.Types);
   res.send(getDatas);
 });
 
 app.get("/cat", async function (req, res) {
-  let getDatas = await categories
-    .find({categoryID : "2-fashCat"})
-    .populate("categories")
-    .then(function (dbProduct) {
-        console.log(dbProduct)
-      res.json(dbProduct);
-    })
-    .catch(function (err) {
-      res.json(err);
-    });
+  let getDatas = await products.aggregate([
+    {
+      $lookup: {
+        from: "categories",
+        localField: "categoryID",
+        foreignField: "categoryID",
+        as: "category",
+      },
+    },
+  ]);
+    
   console.log(getDatas);
   res.send(getDatas);
 });

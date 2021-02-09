@@ -15,17 +15,16 @@ const product = require("./routes/product");
 const index = require("./routes/index");
 
 // middleware
-app.use(express.static(path.join(__dirname, "../client/build")));
+// app.use(express.static(path.join(__dirname, "../client/build")));
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors());
-// app.use(db)
 
 // routes
 app.use(authRoutes);
 app.use(product);
 app.use(index);
 
-app.listen(8080, () => {
+app.listen(8082, () => {
   console.log("server is up");
 });

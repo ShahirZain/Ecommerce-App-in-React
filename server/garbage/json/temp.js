@@ -17,17 +17,11 @@ var productSchema = mongoose.Schema({
   categoryID: String,
   Quantity: Number,
   image: String,
-  categories: [{ type: mongoose.Schema.Types.ObjectId, ref: "categories" }],
 });
 
 var categorySchema = mongoose.Schema({
   categoryID: String,
-  product: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "products",
-  },
   category: String,
- 
 });
 
 var products = mongoose.model("products", productSchema);
