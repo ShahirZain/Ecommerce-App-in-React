@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import axios from "axios";
 import {
   TextField,
   Button,
@@ -9,7 +10,8 @@ import {
 import { Link } from "react-router-dom";
 import { makeStyles } from "@material-ui/core/styles";
 import { useDispatch } from "react-redux";
-import { signup } from "../../redux/action/action";
+import { useHistory } from "react-router-dom";
+
 const MyStyle = makeStyles((theme) => ({
   boxOutLine: {
     border: "1px solid black",
@@ -37,23 +39,49 @@ const MyStyle = makeStyles((theme) => ({
 
 export default function SignIn() {
   const classes = MyStyle();
-  const [firstName, setFirstName] = useState("");
+  const [fName, setfName] = useState("");
+  const [getEmail, setgetEmail] = useState("");
   const [pass, setPass] = useState("");
-  const dispatch = useDispatch();
+  const history = useHistory();
 
-  function addCredentials() {
-    if (firstName.length > 0 && pass.length > 0) {
-      console.log("firstName", firstName);
-      console.log("pass", pass);
-      dispatch(
-        signup({
-          name: firstName,
-          pass: pass,
-        })
-      );
-    } else {
-      alert("email/passowrd is missing");
+
+  async function addCredentials() {
+    const nameError = document.querySelector(".name.error");
+    const emailError = document.querySelector(".email.error");
+    const passwordError = document.querySelector(".password.error");
+    emailError.textContent = ""
+    passwordError.textContent = ""
+    nameError.textContent = ""
+    
+    try {
+      const res = await fetch("http://localhost:8080/register", {
+        method: "POST",
+        body: JSON.stringify({
+          name : fName,
+          email: getEmail,
+          password: pass,
+        }),
+        headers: { "Content-Type": "application/json" },
+      });
+      const data = await res.json();
+      console.log("data :::::", data);
+      if (data.name) {
+        nameError.textContent = data.name;
+      }
+      if (data.email) {
+        emailError.textContent = data.email;
+      }
+      if (data.password) {
+        console.log("abc ::::::::",data);
+        passwordError.textContent = data.password;
+      }
+      if (data.user) {
+        history.push('/')
+      }
+    } catch (e) {
+      console.log("Err in Post /register :::", e);
     }
+    
   }
 
   return (
@@ -75,9 +103,10 @@ export default function SignIn() {
                 label="First Name"
                 autoFocus
                 onChange={(e) => {
-                  setFirstName(e.target.value);
+                  setfName(e.target.value);
                 }}
               />
+              <div class="name error"></div>
             </Grid>
             <Grid item xs={12} sm={6}>
               <TextField
@@ -101,7 +130,11 @@ export default function SignIn() {
                 name="email"
                 autoFocus
                 variant="outlined"
+                onChange={(e) => {
+                  setgetEmail(e.target.value);
+                }}
               />
+              <div class="email error"></div>
             </Grid>
             <br />
             <br />
@@ -119,21 +152,20 @@ export default function SignIn() {
                   setPass(e.target.value);
                 }}
               />
+              <div class="password error"></div>
             </Grid>
             <br />
             <br />
             <Grid item xs={12}>
-              <Link to="/" className={classes.linkStyle}>
-                <Button
-                  variant="contained"
-                  fullWidth
-                  color="primary"
-                  className={classes.btn}
-                  onClick={() => addCredentials()}
-                >
-                  Sign Up
-                </Button>
-              </Link>
+              <Button
+                variant="contained"
+                fullWidth
+                color="primary"
+                className={classes.btn}
+                onClick={async () => await addCredentials()}
+              >
+                Sign Up
+              </Button>
             </Grid>
             <Grid container justify="flex-end">
               <Grid item>
